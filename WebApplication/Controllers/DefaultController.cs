@@ -1,11 +1,13 @@
-﻿using FlightSimulator.Model;
+using FlightSimulator.Model;
 using FlightSimulator.Model.Interface;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Text;
 using System.Web;
 using System.Web.Mvc;
+using System.Xml;
 
 namespace WebApplication.Controllers
 {
@@ -29,7 +31,7 @@ namespace WebApplication.Controllers
             Longitude = model.Longitude;
             Latitude = model.Latitude;
 
-
+            Session["time"] = 0;
             return View();
 
             
@@ -45,10 +47,50 @@ namespace WebApplication.Controllers
             return View();*/
         }
 
-        private ActionResult displayLocation(string ip, string port)
-        {
+        
 
-            return View();
+
+        private void toXml(XmlWriter writer)
+        {
+            writer.WriteStartElement("Location");
+            writer.WriteElementString("Latitude", this.Latitude.ToString());
+            writer.WriteElementString("Longitude", this.Longitude.ToString());
+            writer.WriteEndElement();
+        }
+
+        private string ToXml(double lon, double lat)
+        {
+            //Initiate XML stuff
+            StringBuilder sb = new StringBuilder();
+            XmlWriterSettings settings = new XmlWriterSettings();
+            XmlWriter writer = XmlWriter.Create(sb, settings);
+
+            writer.WriteStartDocument();
+            writer.WriteStartElement("Location");
+
+            toXml(writer);
+
+            writer.WriteEndElement();
+            writer.WriteEndDocument();
+            writer.Flush();
+            return sb.ToString();
+        }
+
+
+        [HttpPost]
+        public string GetLocation()
+        {
+            /*****************************************************************
+             * 
+             * 
+             * update lon & lat values with flight gear
+             * 
+             * 
+             */
+            Latitude = 100;
+            Longitude = 150;
+
+            return ToXml(Latitude, Longitude);
         }
 
 

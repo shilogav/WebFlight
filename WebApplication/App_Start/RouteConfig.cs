@@ -20,6 +20,15 @@ namespace WebApplication
                 new { ip = @"(\d*[\.]\d*)*" } // regular expression for the ip.
             );
 
+
+            routes.MapRoute(
+                null,
+                "save/{ip}/{port}/{tempo}/{duration}/{fileName}",
+                new { controller = "Default", action = "save" }, // Parameter defaults
+                new { ip = @"(\d*[\.]\d*)*" } // regular expression for the ip.
+                );
+
+
             routes.MapRoute(
                 name: "Default",
                 url: "{controller}/{action}/{id}",

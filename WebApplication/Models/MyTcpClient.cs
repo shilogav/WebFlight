@@ -17,25 +17,47 @@ namespace FlightSimulator.Model
 
         public MyTcpClient() {}
 
-        public void connect(string ip, int port)
+        private static bool ExecuteWithTimeLimit(TimeSpan timeSpan, Action codeBlock)
+        {
+            try
+            {
+                Task task = Task.Factory.StartNew(() => codeBlock());
+                task.Wait(timeSpan);
+                return task.IsCompleted;
+            }
+            catch (AggregateException ae)
+            {
+                throw ae.InnerExceptions[0];
+            }
+        }
+
+
+        public void connect(string ip, int port, int maxTimeInSec = 120)
         {
             IPEndPoint ep = new IPEndPoint(IPAddress.Parse(ip), port);
             client = new TcpClient();
             Thread thread = new Thread(() =>
             {
-                bool stop = false;
-                while (!stop)
+                bool completed = ExecuteWithTimeLimit(TimeSpan.FromSeconds(maxTimeInSec), () =>
                 {
-                    try
+                    bool stop = false;
+                    while (!stop)
                     {
-                        client.Connect(ep);
-                        stop = true;
+                        try
+                        {
+                            client.Connect(ep);
+                            stop = true;
+                        }
+                        catch (Exception e) { }
                     }
-                    catch (Exception e) { }
+                });
+                if (!completed)
+                {
+                    throw new Exception("Could not connect to ip:" + ip + "port:" + port );
                 }
             });
+            
             thread.Start();
-            Console.WriteLine("You are connected");
         }
 
         public void disconnect()
@@ -51,19 +73,45 @@ namespace FlightSimulator.Model
             return client != null && client.Connected;
         }
 
-        public void read()
+        public string read(string[] commands = null)
         {
-            throw new NotImplementedException();
+            using (NetworkStream stream = client.GetStream())
+            using (BinaryReader reader = new BinaryReader(stream))
+            using (BinaryWriter writer = new BinaryWriter(stream))
+            {
+                string ret = string.Empty;
+                if (commands != null)
+                {
+                    foreach(string command in commands)
+                    {
+                        writer.Write(command);
+
+                        // Get result from server
+                        ret += reader.ReadString() + ",";
+                    }
+                } else
+                {
+                    // Get result from server
+                    ret = reader.ReadString();
+                }
+                return ret;
+            }
+
+
+            
         }
 
         public void write(string command)
         {
-            // add '/r/n'
+            // add '\r\n'
             command += Environment.NewLine;
             // Send data to server
-            BinaryWriter b = new BinaryWriter(client.GetStream());
-            b.Write(command);
-            b.Flush();
+            using (NetworkStream stream = client.GetStream())
+            using (BinaryWriter b = new BinaryWriter(stream))
+            {
+                b.Write(command);
+                b.Flush();
+            }
         }
     }
 }

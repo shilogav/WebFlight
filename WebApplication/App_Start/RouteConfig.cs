@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -14,11 +14,20 @@ namespace WebApplication
             routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
 
             routes.MapRoute(
-                null, // Route name
+                "display", // Route name
                 "display/{ip}/{port}", // URL with parameters
                 new { controller = "Default", action = "display" }, // Parameter defaults
                 new { ip = @"(\d*[\.]\d*)*" } // regular expression for the ip.
             );
+
+
+            routes.MapRoute(
+                "save",
+                "save/{ip}/{port}/{tempo}/{duration}/{fileName}",
+                new { controller = "Default", action = "save" }, // Parameter defaults
+                new { ip = @"(\d*[\.]\d*)*" } // regular expression for the ip.
+                );
+
 
             routes.MapRoute(
                 name: "Default",

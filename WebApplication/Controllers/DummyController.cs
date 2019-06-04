@@ -1,19 +1,26 @@
-﻿using System;
+﻿using FlightSimulator.Model;
+using FlightSimulator.Model.Interface;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Web.Http;
+using System.Web;
+using System.Web.Mvc;
 
 namespace WebApplication.Controllers
 {
-    public class DummyController : ApiController
+    public class dummyController : Controller
     {
-         
+        private double latitude;
+        private double longitude;
 
+        // GET: dummy
+        public ActionResult Index()
+        {
+            return View();
+        }
 
         [HttpGet]
-        public ActionResult loadAndDisplay(string ip, int port)
+        public ActionResult display(string ip, int port)
         {
             IModel model = MyModel.Instance;
             model.openServer(ip, port);
@@ -35,6 +42,33 @@ namespace WebApplication.Controllers
 
 
             return View();*/
+        }
+
+
+        public double Latitude
+        {
+            get
+            {
+                return latitude;
+            }
+            set
+            {
+                latitude = value;
+                //NotifyPropertyChanged("Latitude");
+            }
+        }
+
+        public double Longitude
+        {
+            get
+            {
+                return longitude;
+            }
+            set
+            {
+                longitude = value;
+                //NotifyPropertyChanged("Longitude");
+            }
         }
     }
 }

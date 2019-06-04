@@ -14,7 +14,7 @@ namespace WebApplication
             routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
 
             routes.MapRoute(
-                null, // Route name
+                "display", // Route name
                 "display/{ip}/{port}", // URL with parameters
                 new { controller = "Default", action = "display" }, // Parameter defaults
                 new { ip = @"(\d*[\.]\d*)*" } // regular expression for the ip.

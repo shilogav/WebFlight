@@ -15,6 +15,10 @@ namespace WebApplication.Controllers
     {
         private double latitude;
         private double longitude;
+        private string[] elements = {"get /position/longitude-deg" + Environment.NewLine ,
+                                 "get /position/latitude-deg" + Environment.NewLine,
+                                 "get /controls/flight/rudder" + Environment.NewLine,
+                                 "get /controls/engines/current-engine/throttle" + Environment.NewLine };
 
         // GET: Default
         public ActionResult Index()
@@ -122,31 +126,22 @@ namespace WebApplication.Controllers
         private string extractDouble(string str)
         {
             List<string> values = str.Split(' ').ToList();
-            string num = values.FindLast(
+            string num = values.Find(
             delegate (string s)
             {
-                return s.StartsWith("'") && str.EndsWith("'");
+                return s.StartsWith("'") && s.EndsWith("'");
             });
             num = num.Replace("'", "");
             return num;
+
         }
 
         [HttpGet]
         public string save(string ip, int port, int tempo, int duration, string fileName)
         {
-
+            string msg = fileName + " added";
 
             IModel model = MyModel.Instance;
-            
-
-            string[] elements = {"get /position/longitude-deg" + Environment.NewLine ,
-                                 "get /position/latitude-deg" + Environment.NewLine,
-                                 "get /instrumentation/airspeed-indicator/indicated-speed-kt" + Environment.NewLine,
-                                 "get /instrumentation/altimeter/indicated-altitude-ft" + Environment.NewLine };
-            // TODO: add direction *******************************************************
-
-
-
             do
             {
                 model.connectClient(ip, port);
@@ -156,7 +151,8 @@ namespace WebApplication.Controllers
                     List<string> values = strings.Split(',').ToList();
 
                     string properties = extractDouble(values[0]);
-                    for (int i = 1; i < elements.GetLength(0); ++i)
+                    int length = elements.GetLength(0);
+                    for (int i = 1; i < length; ++i)
                     {
                         properties += "," + extractDouble(values[i]);
                     }
@@ -164,18 +160,16 @@ namespace WebApplication.Controllers
                     writeToFile(fileName, properties);
                     model.disconnectClient();
                 }
-                catch { }
+                catch {
+                    msg = "there was a problem";
+                }
 
-                System.Threading.Thread.Sleep(1000 / tempo);
+                System.Threading.Thread.Sleep(1000 * tempo);
             } while (model.isClientConnected());
-
-
-
-
 
             // /save/127.0.0.1/5400/4/10/flight1
             model.disconnectClient();
-            return fileName + " added";
+            return msg;
         }
 
 

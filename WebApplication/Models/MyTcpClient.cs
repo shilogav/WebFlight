@@ -114,7 +114,7 @@ namespace FlightSimulator.Model
             byte[] ba = asen.GetBytes(command);
             stm.Write(ba, 0, ba.Length);
             stm.Flush();
-            }
+            
         }
     }
 }

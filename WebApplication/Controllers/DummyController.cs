@@ -2,6 +2,7 @@
 using FlightSimulator.Model.Interface;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -19,16 +20,28 @@ namespace WebApplication.Controllers
             return View();
         }
 
-        [HttpGet]
-        public ActionResult display(string ip, int port)
+        string[] readFromFile(string path)
         {
-            IModel model = MyModel.Instance;
-            model.openServer(ip, port);
+            var dir = Server.MapPath("~\\files");
+            var file = Path.Combine(dir, path);
+            
+            return System.IO.File.ReadAllLines(file);
+        }
 
-            Longitude = model.Longitude;
-            Latitude = model.Latitude;
+        [HttpGet]
+        public ActionResult loadAndDisplay(string path, int tempo)
+        {
+            string[] lines = readFromFile(path);
+            foreach(string line in lines)
+            {
+                List<string> values = line.Split(',').ToList();
+                Session["lon"] = values[0];
+                Session["lat"] = values[0];
+                Session["rudder"] = values[0];
+                Session["throttle"] = values[0];
+                System.Threading.Thread.Sleep(1000 * tempo);
+            }
 
-            Session["time"] = 0;
             return View();
 
 
@@ -38,7 +51,7 @@ namespace WebApplication.Controllers
 
             InfoModel.Instance.ReadData("Dor");
 
-            Session["time"] = time;
+            
 
 
             return View();*/

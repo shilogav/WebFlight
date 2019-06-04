@@ -1,4 +1,4 @@
-﻿using FlightSimulator.Model.Interface;
+using FlightSimulator.Model.Interface;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -17,25 +17,47 @@ namespace FlightSimulator.Model
 
         public MyTcpClient() {}
 
-        public void connect(string ip, int port)
+        private static bool ExecuteWithTimeLimit(TimeSpan timeSpan, Action codeBlock)
+        {
+            try
+            {
+                Task task = Task.Factory.StartNew(() => codeBlock());
+                task.Wait(timeSpan);
+                return task.IsCompleted;
+            }
+            catch (AggregateException ae)
+            {
+                throw ae.InnerExceptions[0];
+            }
+        }
+
+
+    public void connect(string ip, int port, int maxTimeInSec = 120)
         {
             IPEndPoint ep = new IPEndPoint(IPAddress.Parse(ip), port);
             client = new TcpClient();
             Thread thread = new Thread(() =>
             {
-                bool stop = false;
-                while (!stop)
+                bool completed = ExecuteWithTimeLimit(TimeSpan.FromSeconds(maxTimeInSec), () =>
                 {
-                    try
+                    bool stop = false;
+                    while (!stop)
                     {
-                        client.Connect(ep);
-                        stop = true;
+                        try
+                        {
+                            client.Connect(ep);
+                            stop = true;
+                        }
+                        catch (Exception e) { }
                     }
-                    catch (Exception e) { }
+                });
+                if (!completed)
+                {
+                    throw new Exception("Could not connect to ip:" + ip + "port:" + port );
                 }
             });
+            
             thread.Start();
-            Console.WriteLine("You are connected");
         }
 
         public void disconnect()
@@ -51,19 +73,48 @@ namespace FlightSimulator.Model
             return client != null && client.Connected;
         }
 
-        public void read()
+        public string read(ICollection<string> commands = null)
         {
-            throw new NotImplementedException();
+            string ret = string.Empty;
+            Stream stm = client.GetStream();
+            ASCIIEncoding asen = new ASCIIEncoding();
+            const int sizeOfLine = 100;
+            byte[] byteArray = new byte[sizeOfLine];
+
+            if (commands != null)
+            {
+                foreach (string command in commands)
+                {
+                    byte[] ba = asen.GetBytes(command);
+                    stm.Write(ba, 0, ba.Length);
+                    stm.Flush();
+
+                    int k = stm.Read(byteArray, 0, sizeOfLine);
+                    string result = System.Text.Encoding.ASCII.GetString(byteArray);
+                    ret += result + ',';
+                }
+                ret = ret.Remove(ret.Length - 1); // remove the last ','
+            }
+            else
+            {
+                int k = stm.Read(byteArray, 0, sizeOfLine);
+                ret = System.Text.Encoding.ASCII.GetString(byteArray);
+            }
+            return ret;
         }
 
         public void write(string command)
         {
-            // add '/r/n'
+            // add '\r\n'
             command += Environment.NewLine;
             // Send data to server
-            BinaryWriter b = new BinaryWriter(client.GetStream());
-            b.Write(command);
-            b.Flush();
+
+            Stream stm = client.GetStream();
+            ASCIIEncoding asen = new ASCIIEncoding();
+            byte[] ba = asen.GetBytes(command);
+            stm.Write(ba, 0, ba.Length);
+            stm.Flush();
+            
         }
     }
 }

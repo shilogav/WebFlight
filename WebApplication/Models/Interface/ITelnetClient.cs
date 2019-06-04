@@ -10,7 +10,7 @@ namespace FlightSimulator.Model.Interface
     {
         void connect(string ip, int port, int maxTimeInSec = 120);
         void write(string command);
-        string read(string[] commands = null);
+        string read(ICollection<string> commands = null);
         void disconnect();
 
         bool isConnected();

@@ -15,7 +15,7 @@ namespace WebApplication.Controllers
     {
         private double latitude;
         private double longitude;
-        private Dictionary<string, string> elements = new Dictionary<string, string>()
+        private IDictionary<string, string> elements = new Dictionary<string, string>()
         {
             { "lon","/position/longitude-deg" },
             { "lat", "/position/latitude-deg" },
@@ -139,22 +139,34 @@ namespace WebApplication.Controllers
 
         }
 
+        LinkedList<string> addGetAndNewLineToStrings(ICollection<string> strings)
+        {
+            LinkedList<string> copyString = new LinkedList<string>();
+            foreach(string str in strings)
+            {
+                copyString.AddLast("get " + str + Environment.NewLine);
+            }
+            return copyString;
+        }
+
+
         [HttpGet]
         public string save(string ip, int port, int tempo, int duration, string fileName)
         {
             string msg = fileName + " added";
-
+            ICollection<string> elemetsWithGet = addGetAndNewLineToStrings(elements.Values);
             IModel model = MyModel.Instance;
             do
             {
                 model.connectClient(ip, port);
                 try
                 {
-                    string strings = model.getClient().read(elements);
+                    
+                    string strings = model.getClient().read(elemetsWithGet);
                     List<string> values = strings.Split(',').ToList();
 
                     string properties = extractDouble(values[0]);
-                    int length = elements.GetLength(0);
+                    int length = elements.Count();
                     for (int i = 1; i < length; ++i)
                     {
                         properties += "," + extractDouble(values[i]);

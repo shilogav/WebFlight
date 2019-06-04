@@ -115,6 +115,7 @@
     <Compile Include="Models\ApplicationSettingsModel.cs" />
     <Compile Include="Models\BaseNotify.cs" />
     <Compile Include="Models\CommandHandler.cs" />
+    <Compile Include="Models\EnumerableDictionary.cs" />
     <Compile Include="Models\Interface\IClientHandler.cs" />
     <Compile Include="Models\Interface\IModel.cs" />
     <Compile Include="Models\Interface\ISettingsModel.cs" />

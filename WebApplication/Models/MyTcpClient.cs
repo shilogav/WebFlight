@@ -73,7 +73,7 @@ namespace FlightSimulator.Model
             return client != null && client.Connected;
         }
 
-        public string read(string[] commands = null)
+        public string read(ICollection<string> commands = null)
         {
             string ret = string.Empty;
             Stream stm = client.GetStream();

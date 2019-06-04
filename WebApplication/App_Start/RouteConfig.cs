@@ -14,20 +14,11 @@ namespace WebApplication
             routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
 
             routes.MapRoute(
-                "display", // Route name
+                null, // Route name
                 "display/{ip}/{port}", // URL with parameters
                 new { controller = "Default", action = "display" }, // Parameter defaults
                 new { ip = @"(\d*[\.]\d*)*" } // regular expression for the ip.
             );
-
-
-            routes.MapRoute(
-                "save",
-                "save/{ip}/{port}/{tempo}/{duration}/{fileName}",
-                new { controller = "Default", action = "save" }, // Parameter defaults
-                new { ip = @"(\d*[\.]\d*)*" } // regular expression for the ip.
-                );
-
 
             routes.MapRoute(
                 name: "Default",

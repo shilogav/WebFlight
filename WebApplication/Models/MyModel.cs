@@ -98,10 +98,7 @@ namespace FlightSimulator.Model
             client.write(command);
         }
 
-        public ITelnetClient getClient()
-        {
-            return client;
-        }
+
         public void sendStringCommandsWithSleep(string commands, int sleepTime)
         {
             Task t = new Task(() =>

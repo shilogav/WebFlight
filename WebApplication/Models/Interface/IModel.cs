@@ -17,15 +17,13 @@ namespace FlightSimulator.Model.Interface
       
         // clients
         void connectClient(string ip, int port);
-     
+
         bool isClientConnected();
         bool isServerOpen();
         void disconnectClient();
         void sendStringCommandsWithSleep(string command, int sleepTime);
         void sendStringCommand(string command);
-
-
-        ITelnetClient getClient();
+ 
 
         // properties
         double Throttle { get; set; }

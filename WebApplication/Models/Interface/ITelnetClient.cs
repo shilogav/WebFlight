@@ -8,9 +8,9 @@ namespace FlightSimulator.Model.Interface
 {
     public interface ITelnetClient
     {
-        void connect(string ip, int port, int maxTimeInSec = 120);
+        void connect(string ip, int port);
         void write(string command);
-        string read(ICollection<string> commands = null);
+        void read();
         void disconnect();
 
         bool isConnected();

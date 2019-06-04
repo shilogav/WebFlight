@@ -15,10 +15,13 @@ namespace WebApplication.Controllers
     {
         private double latitude;
         private double longitude;
-        private string[] elements = {"get /position/longitude-deg" + Environment.NewLine ,
-                                 "get /position/latitude-deg" + Environment.NewLine,
-                                 "get /controls/flight/rudder" + Environment.NewLine,
-                                 "get /controls/engines/current-engine/throttle" + Environment.NewLine };
+        private Dictionary<string, string> elements = new Dictionary<string, string>()
+        {
+            { "lon","/position/longitude-deg" },
+            { "lat", "/position/latitude-deg" },
+            { "rudder", "/controls/flight/rudder"},
+            { "throttle", "/controls/engines/current-engine/throttle" }
+        };
 
         // GET: Default
         public ActionResult Index()

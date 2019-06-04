@@ -1,13 +1,13 @@
 using FlightSimulator.Model;
 using FlightSimulator.Model.Interface;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
 using System.Text;
-using System.Web;
 using System.Web.Mvc;
 using System.Xml;
+using System.IO;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace WebApplication.Controllers
 {
@@ -15,6 +15,13 @@ namespace WebApplication.Controllers
     {
         private double latitude;
         private double longitude;
+        private IDictionary<string, string> elements = new Dictionary<string, string>()
+        {
+            { "lon","/position/longitude-deg" },
+            { "lat", "/position/latitude-deg" },
+            { "rudder", "/controls/flight/rudder"},
+            { "throttle", "/controls/engines/current-engine/throttle" }
+        };
 
         // GET: Default
         public ActionResult Index()
@@ -23,7 +30,7 @@ namespace WebApplication.Controllers
         }
 
         [HttpGet]
-        public ActionResult display(int id, string ip, int port)
+        public ActionResult display(string ip, int port)
         {
             IModel model = MyModel.Instance;
             model.openServer(ip, port);
@@ -77,7 +84,7 @@ namespace WebApplication.Controllers
         }
 
 
-        [HttpPost]
+        [HttpGet]
         public string GetLocation()
         {
             /*****************************************************************
@@ -91,6 +98,108 @@ namespace WebApplication.Controllers
             Longitude = 150;
 
             return ToXml(Latitude, Longitude);
+        }
+
+        private void writeToFile(string path, string content)
+        {
+            var dir = Server.MapPath("~\\files");
+            var file = Path.Combine(dir, path);
+
+            Directory.CreateDirectory(dir);
+            System.IO.File.AppendAllText(file, content+Environment.NewLine);
+            
+        }
+
+
+        public static bool ExecuteWithTimeLimit(TimeSpan timeSpan, Action codeBlock)
+        {
+            try
+            {
+                Task task = Task.Factory.StartNew(() => codeBlock());
+                task.Wait(timeSpan);
+                return task.IsCompleted;
+            }
+            catch (AggregateException ae)
+            {
+                throw ae.InnerExceptions[0];
+            }
+        }
+
+
+        private string extractDouble(string str)
+        {
+            List<string> values = str.Split(' ').ToList();
+            string num = values.Find(
+            delegate (string s)
+            {
+                return s.StartsWith("'") && s.EndsWith("'");
+            });
+            num = num.Replace("'", "");
+            return num;
+
+        }
+
+        LinkedList<string> addGetAndNewLineToStrings(ICollection<string> strings)
+        {
+            LinkedList<string> copyString = new LinkedList<string>();
+            foreach(string str in strings)
+            {
+                copyString.AddLast("get " + str + Environment.NewLine);
+            }
+            return copyString;
+        }
+
+
+        [HttpGet]
+        public string save(string ip, int port, int tempo, int duration, string fileName)
+        {
+
+            var dir = Server.MapPath("~\\files");
+            var file = Path.Combine(dir, "checkFile");
+
+            Directory.CreateDirectory(dir);
+            System.IO.File.AppendAllText(file, "start save" + Environment.NewLine);
+
+
+
+
+            string msg = fileName + " added";
+            ICollection<string> elemetsWithGet = addGetAndNewLineToStrings(elements.Values);
+            IModel model = MyModel.Instance;
+
+            
+                model.connectClient(ip, port);
+
+                System.IO.File.AppendAllText(file, "connected as client" + Environment.NewLine);
+                try
+                {
+                ITelnetClient c = model.getClient();
+                System.IO.File.AppendAllText(file, "client gets" + Environment.NewLine);
+                string strings = c.read(elemetsWithGet);
+                    
+            System.IO.File.AppendAllText(file, "read done" + Environment.NewLine);
+                    List<string> values = strings.Split(',').ToList();
+
+                    string properties = extractDouble(values[0]);
+                    int length = elements.Count();
+                    for (int i = 1; i < length; ++i)
+                    {
+                        properties += "," + extractDouble(values[i]);
+                    }
+
+                    writeToFile(fileName, properties);
+                    model.disconnectClient();
+                }
+                catch {
+                    msg = "there was a problem";
+                }
+
+                System.Threading.Thread.Sleep(1000 * tempo);
+            //} while (model.isClientConnected());
+
+            // /save/127.0.0.1/5400/4/10/flight1
+            model.disconnectClient();
+            return msg;
         }
 
 

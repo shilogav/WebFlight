@@ -1,4 +1,4 @@
-using FlightSimulator.Model.Interface;
+﻿using FlightSimulator.Model.Interface;
 using System;
 using System.Collections.Generic;
 using System.IO;

@@ -62,26 +62,26 @@ namespace FlightSimulator.Model
                 string str = "";
 
                 // avoid from closing the server while someone reading.
-                lock (numOfReadingLocker) {
+                /*lock (numOfReadingLocker) {
                     if (numOfReadingThreads == 0)
                     {
                         emptyReadingMutex.WaitOne();
                     }
                     numOfReadingThreads++;
-                }
+                }*/
 
                 try {
                     str = reader.ReadString();
                 } catch {
                     str = "";
                 }
-                lock (numOfReadingLocker) {
+                /*lock (numOfReadingLocker) {
                     numOfReadingThreads--;
                     if (numOfReadingThreads == 0)
                     {
                         emptyReadingMutex.ReleaseMutex();
                     }
-                }
+                }*/
 
                 string[] vals = str.Split(
                             new[] { ',' },

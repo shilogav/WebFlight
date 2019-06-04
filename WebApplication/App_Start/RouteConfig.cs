@@ -22,7 +22,7 @@ namespace WebApplication
 
 
             routes.MapRoute(
-                null,
+                "save",
                 "save/{ip}/{port}/{tempo}/{duration}/{fileName}",
                 new { controller = "Default", action = "save" }, // Parameter defaults
                 new { ip = @"(\d*[\.]\d*)*" } // regular expression for the ip.

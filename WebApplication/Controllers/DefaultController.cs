@@ -125,7 +125,10 @@ namespace WebApplication.Controllers
             }
         }
 
-
+        /*
+         * sdrfg
+         */
+         
         private string extractDouble(string str)
         {
             List<string> values = str.Split(' ').ToList();

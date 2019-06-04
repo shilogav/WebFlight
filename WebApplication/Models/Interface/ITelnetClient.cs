@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,9 +8,9 @@ namespace FlightSimulator.Model.Interface
 {
     public interface ITelnetClient
     {
-        void connect(string ip, int port);
+        void connect(string ip, int port, int maxTimeInSec = 120);
         void write(string command);
-        void read();
+        string read(ICollection<string> commands = null);
         void disconnect();
 
         bool isConnected();

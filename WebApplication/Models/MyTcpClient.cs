@@ -32,7 +32,7 @@ namespace FlightSimulator.Model
         }
 
 
-        public void connect(string ip, int port, int maxTimeInSec = 120)
+    public void connect(string ip, int port, int maxTimeInSec = 120)
         {
             IPEndPoint ep = new IPEndPoint(IPAddress.Parse(ip), port);
             client = new TcpClient();
@@ -75,30 +75,32 @@ namespace FlightSimulator.Model
 
         public string read(string[] commands = null)
         {
-            using (NetworkStream stream = client.GetStream())
-            using (BinaryReader reader = new BinaryReader(stream))
-            using (BinaryWriter writer = new BinaryWriter(stream))
+            string ret = string.Empty;
+            Stream stm = client.GetStream();
+            ASCIIEncoding asen = new ASCIIEncoding();
+            const int sizeOfLine = 100;
+            byte[] byteArray = new byte[sizeOfLine];
+
+            if (commands != null)
             {
-                string ret = string.Empty;
-                if (commands != null)
+                foreach (string command in commands)
                 {
-                    foreach(string command in commands)
-                    {
-                        writer.Write(command);
+                    byte[] ba = asen.GetBytes(command);
+                    stm.Write(ba, 0, ba.Length);
+                    stm.Flush();
 
-                        // Get result from server
-                        ret += reader.ReadString() + ",";
-                    }
-                } else
-                {
-                    // Get result from server
-                    ret = reader.ReadString();
+                    int k = stm.Read(byteArray, 0, sizeOfLine);
+                    string result = System.Text.Encoding.ASCII.GetString(byteArray);
+                    ret += result + ',';
                 }
-                return ret;
+                ret = ret.Remove(ret.Length - 1); // remove the last ','
             }
-
-
-            
+            else
+            {
+                int k = stm.Read(byteArray, 0, sizeOfLine);
+                ret = System.Text.Encoding.ASCII.GetString(byteArray);
+            }
+            return ret;
         }
 
         public void write(string command)
@@ -106,11 +108,12 @@ namespace FlightSimulator.Model
             // add '\r\n'
             command += Environment.NewLine;
             // Send data to server
-            using (NetworkStream stream = client.GetStream())
-            using (BinaryWriter b = new BinaryWriter(stream))
-            {
-                b.Write(command);
-                b.Flush();
+
+            Stream stm = client.GetStream();
+            ASCIIEncoding asen = new ASCIIEncoding();
+            byte[] ba = asen.GetBytes(command);
+            stm.Write(ba, 0, ba.Length);
+            stm.Flush();
             }
         }
     }

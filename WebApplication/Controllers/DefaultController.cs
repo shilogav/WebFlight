@@ -49,8 +49,6 @@ namespace WebApplication.Controllers
             Session["lat"] = latitude;
             Session["lon"] = longitude;
 
-            Longitude = model.Longitude;
-            Latitude = model.Latitude;
 
             return View();
 

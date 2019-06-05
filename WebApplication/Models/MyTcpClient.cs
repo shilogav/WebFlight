@@ -36,28 +36,25 @@ namespace FlightSimulator.Model
         {
             IPEndPoint ep = new IPEndPoint(IPAddress.Parse(ip), port);
             client = new TcpClient();
-            Thread thread = new Thread(() =>
+            bool completed = ExecuteWithTimeLimit(TimeSpan.FromSeconds(maxTimeInSec), () =>
             {
-                bool completed = ExecuteWithTimeLimit(TimeSpan.FromSeconds(maxTimeInSec), () =>
+                bool stop = false;
+                while (!stop)
                 {
-                    bool stop = false;
-                    while (!stop)
+                    try
                     {
-                        try
-                        {
-                            client.Connect(ep);
-                            stop = true;
-                        }
-                        catch (Exception e) { }
+                        client.Connect(ep);
+                        stop = true;
                     }
-                });
-                if (!completed)
-                {
-                    throw new Exception("Could not connect to ip:" + ip + "port:" + port );
+                    catch (Exception e) { }
                 }
             });
-            
-            thread.Start();
+            if (!completed)
+            {
+                throw new Exception("Could not connect to ip:" + ip + "port:" + port);
+            }
+
+
         }
 
         public void disconnect()

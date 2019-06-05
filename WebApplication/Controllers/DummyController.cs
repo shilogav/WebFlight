@@ -31,6 +31,8 @@ namespace WebApplication.Controllers
         [HttpGet]
         public ActionResult loadAndDisplay(string path, int tempo)
         {
+            return View();
+            /*
             string[] lines = readFromFile(path);
             foreach(string line in lines)
             {
@@ -42,7 +44,7 @@ namespace WebApplication.Controllers
                 System.Threading.Thread.Sleep(1000 * tempo);
             }
 
-            return View();
+            
 
 
             /*InfoModel.Instance.ip = ip;

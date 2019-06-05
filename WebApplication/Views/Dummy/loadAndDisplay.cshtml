@@ -1,0 +1,59 @@
+﻿
+
+@{
+    ViewBag.Title = "loadAndDisplay";
+}
+
+<canvas id="myCanvas" width="800" height="800"
+        style="border:none;"></canvas>
+
+<script>
+        function createLine(canvasID, startX, startY, endX, endY, width = 3, color = "blue") {
+        var myCanvas = document.getElementById(canvasID);
+        if (myCanvas && myCanvas.getContext("2d")) {
+            var context = myCanvas.getContext("2d");
+            context.beginPath();
+            context.moveTo(startX, startY);
+            context.lineTo(endX, endY);
+
+            context.strokeStyle = color;
+            context.lineWidth = width;
+            context.stroke();
+        }
+    }
+</script>
+
+
+<script>
+    var myCanvas = document.getElementById("myCanvas");
+    myCanvas.width = window.innerWidth;
+    myCanvas.height = window.innerHeight;
+</script>
+<script>
+    var time = @Session["time"] * 1000
+    var newX= Number;
+    var newY= Number;
+    function createLineWithTime() {
+        var curX = newX;
+        var curY = newY;
+        var rudder = @Session["rudder"];
+        var throttle = @Session["throttle"];
+
+        var addToX = 1 - Math.abs(rudder);
+        var addToY = -1 * rudder;
+        newX = curX + (addToX * time * throttle);
+        newY = curX + (addToY * time * throttle);
+        createLine("myCanvas", curX, curY, newX, newY, 2, "blue");
+
+    }
+    try {
+
+        newX = @Session["lon"];
+        newY = @Session["lat"];
+
+        setInterval(createLineWithTime, time);
+    } catch () {
+        print("there was a problem");
+    }
+</script>
+

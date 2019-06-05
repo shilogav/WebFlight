@@ -31,11 +31,12 @@ namespace WebApplication.Controllers
             return System.IO.File.ReadAllLines(file);
         }
 
-        private string[]lines;
-        private int lineIndex;
+        public static string[] lines;
+        public static int lineIndex;
 
         [HttpGet]
         public ActionResult loadAndDisplay(string path, int tempo)
+
         {
             var dir = Server.MapPath("~\\files");
             string file = Path.Combine(dir, path);
@@ -47,8 +48,8 @@ namespace WebApplication.Controllers
             Session["path"] = path;
             List<string> values = line.Split(',').ToList();
 
-            Session["lon"] = values[0];
-            Session["lat"] = values[1];
+            Session["lon"] = 150;
+            Session["lat"] = 200;
 
             return View();
             
@@ -72,6 +73,8 @@ namespace WebApplication.Controllers
             
             if (lineIndex >= lines.GetLength(0))
             {
+                lineIndex = 0;
+                return "";
                 // TODO: add if and alert when the lines end. **********************************************************
             }
 
@@ -83,14 +86,13 @@ namespace WebApplication.Controllers
             string throttle = values[3];
 
             lineIndex++;
-
             return ToXml(Double.Parse(rudder), Double.Parse(throttle));
         }
 
 
         private void toXml(XmlWriter writer, double rudder, double throttle)
         {
-            writer.WriteStartElement("Diection");
+            writer.WriteStartElement("Direction");
             writer.WriteElementString("throttle", throttle.ToString());
             writer.WriteElementString("rudder", rudder.ToString());
             writer.WriteEndElement();
@@ -104,7 +106,7 @@ namespace WebApplication.Controllers
             XmlWriter writer = XmlWriter.Create(sb, settings);
 
             writer.WriteStartDocument();
-            writer.WriteStartElement("Diection");
+            writer.WriteStartElement("Direction");
 
             toXml(writer, rudder, throttle);
 

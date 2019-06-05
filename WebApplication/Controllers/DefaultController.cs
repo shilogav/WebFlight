@@ -31,7 +31,7 @@ namespace WebApplication.Controllers
         [HttpGet]
         public ActionResult display(string ip, int port)
         {
-            IModel model = MyModel.Instance;
+           IModel model = MyModel.Instance;
             model.connectClient(ip, port);
             List<string> vals = new List<string>();
             string a = (string)elements["lon"];

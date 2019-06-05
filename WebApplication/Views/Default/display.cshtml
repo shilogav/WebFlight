@@ -13,11 +13,10 @@
 <script>
     var canvas = document.getElementById("myCanvas");
     var ctx = canvas.getContext("2d");
+    var lat = @Session["lat"];
+    var lon = @Session["lon"];
 
     ctx.beginPath();
-
-    ctx.strokeStyle = "red";
-    ctx.strokeRect(75, 25, 50, 50);
 
     ctx.strokeStyle = "red";
     ctx.arc(95, 50, 40, 0, 2 * Math.PI);

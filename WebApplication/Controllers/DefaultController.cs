@@ -19,9 +19,7 @@ namespace WebApplication.Controllers
         private OrderedDictionary elements = new OrderedDictionary()
         {
             { "lon","/position/longitude-deg" },
-            { "lat", "/position/latitude-deg" },
-            { "rudder", "/controls/flight/rudder"},
-            { "throttle", "/controls/engines/current-engine/throttle" }
+            { "lat", "/position/latitude-deg" }
         };
 
         // GET: Default
@@ -34,12 +32,26 @@ namespace WebApplication.Controllers
         public ActionResult display(string ip, int port)
         {
             IModel model = MyModel.Instance;
-            model.openServer(ip, port);
+            model.connectClient(ip, port);
+            List<string> vals = new List<string>();
+            string a = (string)elements["lon"];
+            string b = (string)elements["lat"];
+            vals.Add(a);
+            vals.Add(b);
+            ICollection<string> elemetsWithGet = addGetAndNewLineToStrings(vals);
+
+            ITelnetClient c = model.getClient();
+            string strings = c.read(elemetsWithGet);
+            List<string> values = strings.Split(',').ToList();
+            Longitude = Double.Parse(extractDouble(values[0]));
+            Latitude  = Double.Parse(extractDouble(values[1]));
+
+            Session["lat"] = latitude;
+            Session["lon"] = longitude;
 
             Longitude = model.Longitude;
             Latitude = model.Latitude;
 
-            Session["time"] = 0;
             return View();
 
 
@@ -139,12 +151,12 @@ namespace WebApplication.Controllers
 
         }
 
-        LinkedList<string> addGetAndNewLineToStrings(System.Collections.ICollection strings)
+        List<string> addGetAndNewLineToStrings(System.Collections.ICollection strings)
         {
-            LinkedList<string> copyString = new LinkedList<string>();
+            List<string> copyString = new List<string>();
             foreach (string str in strings)
             {
-                copyString.AddLast("get " + str + Environment.NewLine);
+                copyString.Add("get " + str + Environment.NewLine);
             }
             return copyString;
         }

@@ -125,10 +125,7 @@ namespace WebApplication.Controllers
             }
         }
 
-        /*
-         * sdrfg
-         */
-         
+
         private string extractDouble(string str)
         {
             List<string> values = str.Split(' ').ToList();
@@ -156,51 +153,37 @@ namespace WebApplication.Controllers
         [HttpGet]
         public string save(string ip, int port, int tempo, int duration, string fileName)
         {
-
-            var dir = Server.MapPath("~\\files");
-            var file = Path.Combine(dir, "checkFile");
-
-            Directory.CreateDirectory(dir);
-            System.IO.File.AppendAllText(file, "start save" + Environment.NewLine);
-
-
-
-
             string msg = fileName + " added";
             ICollection<string> elemetsWithGet = addGetAndNewLineToStrings(elements.Values);
             IModel model = MyModel.Instance;
+            model.connectClient(ip, port);
 
-            
-                model.connectClient(ip, port);
-
-                System.IO.File.AppendAllText(file, "connected as client" + Environment.NewLine);
-                try
-                {
+            try
+            {
                 ITelnetClient c = model.getClient();
-                System.IO.File.AppendAllText(file, "client gets" + Environment.NewLine);
-                string strings = c.read(elemetsWithGet);
-                    
-            System.IO.File.AppendAllText(file, "read done" + Environment.NewLine);
-                    List<string> values = strings.Split(',').ToList();
 
-                    string properties = extractDouble(values[0]);
-                    int length = elements.Count();
-                    for (int i = 1; i < length; ++i)
+                bool Completed = ExecuteWithTimeLimit(TimeSpan.FromSeconds(duration), () =>
+                {
+                    do
                     {
-                        properties += "," + extractDouble(values[i]);
-                    }
+                        string strings = c.read(elemetsWithGet);
+                        List<string> values = strings.Split(',').ToList();
+                        string properties = extractDouble(values[0]);
 
-                    writeToFile(fileName, properties);
-                    model.disconnectClient();
-                }
-                catch {
-                    msg = "there was a problem";
-                }
+                        int length = elements.Count();
+                        for (int i = 1; i < length; ++i)
+                        {
+                            properties += "," + extractDouble(values[i]);
+                        }
 
-                System.Threading.Thread.Sleep(1000 * tempo);
-            //} while (model.isClientConnected());
-
-            // /save/127.0.0.1/5400/4/10/flight1
+                        writeToFile(fileName, properties);
+                        System.Threading.Thread.Sleep(1000 * tempo);
+                    } while (c.isConnected());
+                });
+            } catch {
+                msg = "there was a problem";
+            }
+                
             model.disconnectClient();
             return msg;
         }

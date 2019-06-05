@@ -7,6 +7,7 @@ using System.Xml;
 using System.IO;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 
 namespace WebApplication.Controllers
@@ -15,7 +16,7 @@ namespace WebApplication.Controllers
     {
         private double latitude;
         private double longitude;
-        private IDictionary<string, string> elements = new Dictionary<string, string>()
+        private OrderedDictionary elements = new OrderedDictionary()
         {
             { "lon","/position/longitude-deg" },
             { "lat", "/position/latitude-deg" },
@@ -139,7 +140,7 @@ namespace WebApplication.Controllers
 
         }
 
-        LinkedList<string> addGetAndNewLineToStrings(ICollection<string> strings)
+        LinkedList<string> addGetAndNewLineToStrings(System.Collections.ICollection strings)
         {
             LinkedList<string> copyString = new LinkedList<string>();
             foreach(string str in strings)
@@ -170,7 +171,7 @@ namespace WebApplication.Controllers
                         List<string> values = strings.Split(',').ToList();
                         string properties = extractDouble(values[0]);
 
-                        int length = elements.Count();
+                        int length = elements.Values.Count;
                         for (int i = 1; i < length; ++i)
                         {
                             properties += "," + extractDouble(values[i]);

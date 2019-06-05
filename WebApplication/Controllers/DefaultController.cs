@@ -42,13 +42,14 @@ namespace WebApplication.Controllers
 
             ITelnetClient c = model.getClient();
             string strings = c.read(elemetsWithGet);
+            model.disconnectClient();
             List<string> values = strings.Split(',').ToList();
 
             Longitude = Double.Parse(extractDouble(values[0]));
             Latitude  = Double.Parse(extractDouble(values[1]));
 
-            Session["lat"] = 0;
-            Session["lon"] = 0;
+            Session["lat"] = Latitude;
+            Session["lon"] = Longitude;
 
 
             return View();

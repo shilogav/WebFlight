@@ -6,6 +6,13 @@
 
 <canvas id="myCanvas" width="800" height="800"
         style="border:none;"></canvas>
+<div>
+    <img src="/photoes/export-map-share.png" alt="map" style="width:100%;height:100%" />
+    <DIV id="positionDiv" style="position:absolute; top:0px; width:100%; height:100%">
+        <canvas id="myCanvas"></canvas>
+    </DIV>
+</div>
+
 
 <script>
     function createLine(canvasID, startX, startY, endX, endY, width = 3, color = "blue") {
@@ -33,26 +40,30 @@
     var newX= Number;
     var newY= Number;
 
-    function createLineWithTime() {
-        var curX = newX;
-        var curY = newY;
-        var rudder = @Session["rudder"];
-        var throttle = @Session["throttle"];
-
-        var addToX = 1 - Math.abs(rudder);
-        var addToY = -1 * rudder;
-        newX = curX + (addToX * time * throttle);
-        newY = curX + (addToY * time * throttle);
-        createLine("myCanvas", curX, curY, newX, newY, 2, "blue");
-    }
-
     try {
+         createLineWithTime = (function () {
+            $.post( "@Url.Action("GetCourse")").done(function (xml) {
+                    var xmlDoc = $.parseXML( xml ),
+                    $xml = $( xmlDoc ),
 
-        newX = @Session["lon"];
-        newY = @Session["lat"];
+                    rudder = $xml.find("rudder").Number();
+                    throttle = $xml.find("throttle").Number();
 
-        setInterval(createLineWithTime, time);
-    } catch () {
+                    var curX = newX;
+                    var curY = newY;
+                    var addToX = 1 - Math.abs(rudder);
+                    var addToY = -1 * rudder;
+                    newX = curX + (addToX * time * throttle);
+                    newY = curX + (addToY * time * throttle);
+                    createLine("myCanvas", curX, curY, newX, newY, 2, "blue");
+            });
+            newX = @Session["lon"];
+            newY = @Session["lat"];
+            setInterval(createLineWithTime, time);
+        });
+
+    } catch (error) {
+        console.error(error);
         print("there was a problem");
     }
 </script>

@@ -4,8 +4,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Web;
 using System.Web.Mvc;
+using System.Xml;
+using WebApplication.Controllers;
 
 namespace WebApplication.Controllers
 {
@@ -28,22 +31,25 @@ namespace WebApplication.Controllers
             return System.IO.File.ReadAllLines(file);
         }
 
+        private string[]lines;
+        private int lineIndex;
+
         [HttpGet]
         public ActionResult loadAndDisplay(string path, int tempo)
         {
             var dir = Server.MapPath("~\\files");
-            var file = Path.Combine(dir, path);
-            string[] lines = readFromFile(file);
+            string file = Path.Combine(dir, path);
+            lines = readFromFile(file);
+
+            string line = lines[lineIndex];
+
             Session["time"] = tempo;
-            foreach (string line in lines)
-            {
-                List<string> values = line.Split(',').ToList();
-                Session["lon"] = values[0];
-                Session["lat"] = values[1];
-                Session["rudder"] = values[2];
-                Session["throttle"] = values[3];
-                //System.Threading.Thread.Sleep(1000 * tempo);
-            }
+            Session["path"] = path;
+            List<string> values = line.Split(',').ToList();
+
+            Session["lon"] = values[0];
+            Session["lat"] = values[1];
+
             return View();
             
 
@@ -58,6 +64,54 @@ namespace WebApplication.Controllers
 
 
             return View();*/
+        }
+
+        [HttpPost]
+        public string GetCourse()
+        {
+            
+            if (lineIndex >= lines.GetLength(0))
+            {
+                // TODO: add if and alert when the lines end. **********************************************************
+            }
+
+            string line = lines[lineIndex];
+            List<string> values = line.Split(',').ToList();
+
+
+            string rudder = values[2];
+            string throttle = values[3];
+
+            lineIndex++;
+
+            return ToXml(Double.Parse(rudder), Double.Parse(throttle));
+        }
+
+
+        private void toXml(XmlWriter writer, double rudder, double throttle)
+        {
+            writer.WriteStartElement("Diection");
+            writer.WriteElementString("throttle", throttle.ToString());
+            writer.WriteElementString("rudder", rudder.ToString());
+            writer.WriteEndElement();
+        }
+
+        private string ToXml(double rudder, double throttle)
+        {
+            //Initiate XML stuff
+            StringBuilder sb = new StringBuilder();
+            XmlWriterSettings settings = new XmlWriterSettings();
+            XmlWriter writer = XmlWriter.Create(sb, settings);
+
+            writer.WriteStartDocument();
+            writer.WriteStartElement("Diection");
+
+            toXml(writer, rudder, throttle);
+
+            writer.WriteEndElement();
+            writer.WriteEndDocument();
+            writer.Flush();
+            return sb.ToString();
         }
 
 

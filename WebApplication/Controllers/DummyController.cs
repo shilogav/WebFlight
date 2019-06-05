@@ -31,19 +31,20 @@ namespace WebApplication.Controllers
         [HttpGet]
         public ActionResult loadAndDisplay(string path, int tempo)
         {
-            return View();
-            /*
-            string[] lines = readFromFile(path);
-            foreach(string line in lines)
+            var dir = Server.MapPath("~\\files");
+            var file = Path.Combine(dir, path);
+            string[] lines = readFromFile(file);
+            Session["time"] = tempo;
+            foreach (string line in lines)
             {
                 List<string> values = line.Split(',').ToList();
                 Session["lon"] = values[0];
-                Session["lat"] = values[0];
-                Session["rudder"] = values[0];
-                Session["throttle"] = values[0];
-                System.Threading.Thread.Sleep(1000 * tempo);
+                Session["lat"] = values[1];
+                Session["rudder"] = values[2];
+                Session["throttle"] = values[3];
+                //System.Threading.Thread.Sleep(1000 * tempo);
             }
-
+            return View();
             
 
 

@@ -47,8 +47,8 @@ namespace WebApplication.Controllers
             Longitude = Double.Parse(extractDouble(values[0]));
             Latitude  = Double.Parse(extractDouble(values[1]));
 
-            Session["lat"] = Latitude;
-            Session["lon"] = Longitude;
+            Session["lat"] = 0;
+            Session["lon"] = 0;
 
 
             return View();
@@ -105,8 +105,8 @@ namespace WebApplication.Controllers
              * 
              * 
              */
-            Latitude = 100;
-            Longitude = 150;
+            Latitude = 0;
+            Longitude = 0;
 
             return ToXml(Latitude, Longitude);
         }
@@ -210,7 +210,7 @@ namespace WebApplication.Controllers
             }
             set
             {
-                latitude = value + 90;
+                latitude = value;
                 //NotifyPropertyChanged("Latitude");
             }
         }
@@ -223,7 +223,7 @@ namespace WebApplication.Controllers
             }
             set
             {
-                longitude = value + 180;
+                longitude = value;
                 //NotifyPropertyChanged("Longitude");
             }
         }

@@ -4,7 +4,7 @@
 <div>
     <img src="/photoes/export-map-share.png" alt="map" style="width:100%;height:100%"/>
     <DIV id="positionDiv" style="position:absolute; top:0px; width:100%; height:100%">
-        <canvas id="myCanvas" style="border:1px solid black;"></canvas>
+        <canvas id="myCanvas"></canvas>
     </DIV>
 </div>
 
@@ -13,14 +13,18 @@
 <script>
     var canvas = document.getElementById("myCanvas");
     var ctx = canvas.getContext("2d");
-    var lat = @Session["lat"];
-    var lon = @Session["lon"];
+
+    var winWidth = window.innerWidth;
+    var winHei = window.innerHeight;
+
+    var lat = ((winHei / 2) + @Session["lat"] * (winHei / 180)) % 180;
+    var lon = (winWidth / 2) + @Session["lon"] * (winWidth / 360) % 360;
 
     //lat = 50;
     //lon = 100;
 
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    canvas.width = winWidth;
+    canvas.height = winHei;
 
     ctx.beginPath();
     ctx.arc(lat, lon, 5, 0, 2 * Math.PI);

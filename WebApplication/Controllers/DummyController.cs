@@ -11,7 +11,7 @@ namespace WebApplication.Controllers
     {
          
 
-
+        /*
         [HttpGet]
         public ActionResult loadAndDisplay(string ip, int port)
         {
@@ -34,7 +34,7 @@ namespace WebApplication.Controllers
             Session["time"] = time;
 
 
-            return View();*/
-        }
+            return View();
+        }*/
     }
 }

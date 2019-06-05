@@ -32,13 +32,23 @@ namespace WebApplication.Controllers
         [HttpGet]
         public ActionResult display(string ip, int port)
         {
-            IModel model = MyModel.Instance;
-            model.openServer(ip, port);
-            
-            Longitude = model.Longitude;
-            Latitude = model.Latitude;
+            /*LinkedList<string> vals = new LinkedList<string>();
+            vals.Append(elements["lon"]);
+            vals.Append(elements["lat"]);
 
-            Session["time"] = 0;
+            ICollection<string> elemetsWithGet = addGetAndNewLineToStrings(vals);
+            IModel model = MyModel.Instance;
+            model.connectClient(ip, port);
+            ITelnetClient c = model.getClient();
+            string strings = c.read(elemetsWithGet);
+            List<string> values = strings.Split(',').ToList();
+
+            Longitude = Double.Parse(values[0]);
+            Latitude = Double.Parse(values[1]);*/
+
+            Session["lon"] = 90;
+            Session["lat"] = 50;
+
             return View();
 
             
@@ -94,8 +104,8 @@ namespace WebApplication.Controllers
              * 
              * 
              */
-            Latitude = 100;
-            Longitude = 150;
+            Latitude = 0;
+            Longitude = 0;
 
             return ToXml(Latitude, Longitude);
         }

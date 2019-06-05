@@ -11,24 +11,6 @@
 
 
 <script>
-    var IntervalTime = @Session["time"] * 1000
-    myTimer = (function () {
-        $.post( "@Url.Action("GetLocation")").done(function (xml) {
-                var xmlDoc = $.parseXML( xml ),
-                $xml = $( xmlDoc ),
-                lon = $xml.find( "Longitude" ).text();
-                lat = $xml.find( "Latitude" ).text();
-
-            $("#positionDiv").top(lon);
-            $("#prodName").left(lat);
-
-        });
-    });
-    if (IntervalTime.toString == "0") {
-        setInterval(myTimer, IntervalTime);
-    }
-    myTimer();
-
     var canvas = document.getElementById("myCanvas");
     var ctx = canvas.getContext("2d");
 
@@ -40,6 +22,29 @@
     ctx.strokeStyle = "red";
     ctx.arc(95, 50, 40, 0, 2 * Math.PI);
     ctx.stroke();
+
+    var IntervalTime = @Session["time"] * 1000
+    myTimer = (function () {
+	
+        $.post( "@Url.Action("GetLocation")").done(function (xml) {
+                var xmlDoc = $.parseXML( xml ),
+                $xml = $( xmlDoc ),
+                lon = $xml.find( "Longitude" ).text();
+                lat = $xml.find( "Latitude" ).text();
+				
+            $("#positionDiv").top(lon);
+            $("#positionDiv").left(lat);
+			
+        });
+    });
+    if (IntervalTime.toString == "0") {
+        setInterval(myTimer, IntervalTime);
+    }
+    myTimer();
+	
+	 
+
+    
 
 </script>
 

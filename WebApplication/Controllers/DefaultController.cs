@@ -34,11 +34,13 @@ namespace WebApplication.Controllers
         public ActionResult display(string ip, int port)
         {
             IModel model = MyModel.Instance;
-            model.openServer(ip, port);
+            /*model.openServer(ip, port);
 
             Longitude = model.Longitude;
             Latitude = model.Latitude;
-
+            */
+            Longitude = 50;
+            Latitude = 150;
             Session["time"] = 0;
             return View();
 
@@ -55,8 +57,7 @@ namespace WebApplication.Controllers
             return View();*/
         }
 
-
-
+        
 
         private void toXml(XmlWriter writer)
         {
@@ -85,7 +86,7 @@ namespace WebApplication.Controllers
         }
 
 
-        [HttpGet]
+        [HttpPost]
         public string GetLocation()
         {
             /*****************************************************************

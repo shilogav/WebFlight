@@ -35,14 +35,14 @@ namespace WebApplication.Controllers
         {
             IModel model = MyModel.Instance;
             model.openServer(ip, port);
-            
+
             Longitude = model.Longitude;
             Latitude = model.Latitude;
 
             Session["time"] = 0;
             return View();
 
-            
+
             /*InfoModel.Instance.ip = ip;
             InfoModel.Instance.port = port.ToString();
             InfoModel.Instance.time = time;
@@ -55,7 +55,7 @@ namespace WebApplication.Controllers
             return View();*/
         }
 
-        
+
 
 
         private void toXml(XmlWriter writer)
@@ -107,8 +107,8 @@ namespace WebApplication.Controllers
             var file = Path.Combine(dir, path);
 
             Directory.CreateDirectory(dir);
-            System.IO.File.AppendAllText(file, content+Environment.NewLine);
-            
+            System.IO.File.AppendAllText(file, content + Environment.NewLine);
+
         }
 
 
@@ -143,7 +143,7 @@ namespace WebApplication.Controllers
         LinkedList<string> addGetAndNewLineToStrings(System.Collections.ICollection strings)
         {
             LinkedList<string> copyString = new LinkedList<string>();
-            foreach(string str in strings)
+            foreach (string str in strings)
             {
                 copyString.AddLast("get " + str + Environment.NewLine);
             }
@@ -181,10 +181,12 @@ namespace WebApplication.Controllers
                         System.Threading.Thread.Sleep(1000 * tempo);
                     } while (c.isConnected());
                 });
-            } catch {
+            }
+            catch
+            {
                 msg = "there was a problem";
             }
-                
+
             model.disconnectClient();
             return msg;
         }

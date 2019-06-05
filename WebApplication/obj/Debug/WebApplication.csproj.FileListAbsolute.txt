@@ -211,11 +211,3 @@ C:\Users\neriy\Source\Repos\neriyashul\Web_Flight4\WebApplication\obj\Debug\WebA
 C:\Users\neriy\Source\Repos\neriyashul\Web_Flight4\WebApplication\obj\Debug\WebApplication.csproj.CopyComplete
 C:\Users\neriy\Source\Repos\neriyashul\Web_Flight4\WebApplication\obj\Debug\WebApplication.dll
 C:\Users\neriy\Source\Repos\neriyashul\Web_Flight4\WebApplication\obj\Debug\WebApplication.pdb
-C:\Users\neriy\Source\Repos\neriyashul\Web_Flight4\WebApplication\bin\Newtonsoft.Json.dll
-C:\Users\neriy\Source\Repos\neriyashul\Web_Flight4\WebApplication\bin\System.Net.Http.Formatting.dll
-C:\Users\neriy\Source\Repos\neriyashul\Web_Flight4\WebApplication\bin\System.Web.Http.dll
-C:\Users\neriy\Source\Repos\neriyashul\Web_Flight4\WebApplication\bin\System.Web.Http.WebHost.dll
-C:\Users\neriy\Source\Repos\neriyashul\Web_Flight4\WebApplication\bin\Newtonsoft.Json.xml
-C:\Users\neriy\Source\Repos\neriyashul\Web_Flight4\WebApplication\bin\System.Net.Http.Formatting.xml
-C:\Users\neriy\Source\Repos\neriyashul\Web_Flight4\WebApplication\bin\System.Web.Http.xml
-C:\Users\neriy\Source\Repos\neriyashul\Web_Flight4\WebApplication\bin\System.Web.Http.WebHost.xml

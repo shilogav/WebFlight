@@ -21,8 +21,8 @@ namespace WebApplication
             );
 
             routes.MapRoute(
-                "loadAndDisplay", // Route name
-                "display/{path}/{tempo}", // URL with parameters
+                "loadAnddisplay", // Route name
+                "display/{file}/{tempo}", // URL with parameters
                 new { controller = "Dummy", action = "loadAndDisplay" } // Parameter defaults
             );
 

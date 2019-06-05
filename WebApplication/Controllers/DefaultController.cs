@@ -43,11 +43,12 @@ namespace WebApplication.Controllers
             ITelnetClient c = model.getClient();
             string strings = c.read(elemetsWithGet);
             List<string> values = strings.Split(',').ToList();
+
             Longitude = Double.Parse(extractDouble(values[0]));
             Latitude  = Double.Parse(extractDouble(values[1]));
 
-            Session["lat"] = latitude;
-            Session["lon"] = longitude;
+            Session["lat"] = Latitude;
+            Session["lon"] = Longitude;
 
 
             return View();
@@ -209,7 +210,7 @@ namespace WebApplication.Controllers
             }
             set
             {
-                latitude = value;
+                latitude = value + 90;
                 //NotifyPropertyChanged("Latitude");
             }
         }
@@ -222,7 +223,7 @@ namespace WebApplication.Controllers
             }
             set
             {
-                longitude = value;
+                longitude = value + 180;
                 //NotifyPropertyChanged("Longitude");
             }
         }

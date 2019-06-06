@@ -27,9 +27,11 @@
 
 
     <script>
+        <script>
         var myCanvas = document.getElementById("myCanvas");
-        myCanvas.width = window.innerWidth;
-        myCanvas.height = window.innerHeight;
+        var myImg = document.getElementById("imgID");
+        myCanvas.width = myImg.width;
+        myCanvas.height = myImg.he;
     </script>
     <script>
         var time = @Session["time"] * 1000;
@@ -54,9 +56,14 @@
                 var curY = newY;
                 var addToX = 1 - Math.abs(fRudder);
                 var addToY = -1 * fRudder;
-                newX = curX + (addToX * time * fThrottle);
-                newY = curX + (addToY * time * fThrottle);
-                
+                newX = curX + (addToX * (time/10) * fThrottle);
+                newY = (curX + (addToY * (time / 10) * fThrottle));
+
+                newX = Math.max(0, newX);
+                newY = Math.max(0, newY);
+                newX = Math.min(myCanvas.width, newX);
+                newY = Math.min(myCanvas.height, newY);
+
                 createLine("myCanvas", curX, curY, newX, newY, 2, "red");
                         
             });

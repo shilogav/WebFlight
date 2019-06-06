@@ -42,14 +42,24 @@ namespace WebApplication.Controllers
             string file = Path.Combine(dir, path);
             lines = readFromFile(file);
 
+            if (lines.Length >= lineIndex)
+            {
+                lineIndex = 0;
+            }
             string line = lines[lineIndex];
 
             Session["time"] = tempo;
             Session["path"] = path;
             List<string> values = line.Split(',').ToList();
-
-            Session["lon"] = 150;
-            Session["lat"] = 200;
+            if (values.Count >= 2)
+            {
+                Session["lon"] = values[0];
+                Session["lat"] = values[1];
+            } else
+            {
+                Session["lon"] = 0;
+                Session["lat"] = 0;
+            }
 
             return View();
             

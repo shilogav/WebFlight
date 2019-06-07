@@ -21,9 +21,16 @@ namespace WebApplication
             );
 
             routes.MapRoute(
+                "getArgsAndDisplay", // Route name
+                "display/{ip}/{port}/{tempo}", // URL with parameters
+                new { controller = "Default", action = "getArgsAndDisplay" }, // Parameter defaults
+                new { ip = @"(\d*[\.]\d*)*" } // regular expression for the ip.
+            );
+
+            routes.MapRoute(
                 "loadAndDisplay", // Route name
                 "display/{path}/{tempo}", // URL with parameters
-                new { controller = "Dummy", action = "loadAndDisplay" } // Parameter defaults
+                new { controller = "Default", action = "loadAndDisplay" } // Parameter defaults
             );
 
 

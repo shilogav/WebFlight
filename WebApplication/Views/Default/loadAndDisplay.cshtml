@@ -1,0 +1,38 @@
+﻿@{
+    ViewBag.Title = "loadAndDisplay";
+}
+
+@Html.Partial("~/Views/ViewScript/Line.cshtml")
+
+
+
+<div>
+    <img src="/photoes/export-map-share.png" alt="map" style="width:100%;height:100%" />
+    <DIV id="positionDiv" style="position:absolute; top:0px; width:100%; height:100%">
+        <canvas id="myCanvas"></canvas>
+    </DIV>
+</div>
+
+
+
+<script>
+    var myCanvas = document.getElementById("myCanvas");
+    var myImg = document.getElementById("imgID");
+    myCanvas.width = window.innerWidth;
+    myCanvas.height = window.innerHeight;
+
+    var time = @Session["time"] * 1000;
+    var newX= Number;
+    var newY= Number;
+
+    newX = @Session["lon"];
+    newX += 180;
+    newY = @Session["lat"];
+    newY += 90;
+    newX = Math.min(myCanvas.width, newX);
+    newY = Math.min(myCanvas.height, newY);
+
+    var refreshIntervalId = setInterval(getArgsAndCreateLine, time);
+    getArgsAndCreateLine();
+
+</script>

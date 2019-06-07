@@ -1,0 +1,45 @@
+﻿<script>
+    function createLine(canvasID, startX, startY, endX, endY, width = 3, color = "blue") {
+        var myCanvas = document.getElementById(canvasID);
+        if (myCanvas && myCanvas.getContext("2d")) {
+            var context = myCanvas.getContext("2d");
+            context.beginPath();
+            context.moveTo(startX, startY);
+            context.lineTo(endX, endY);
+
+            context.strokeStyle = color;
+            context.lineWidth = width;
+            context.stroke();
+        }
+    }
+
+
+    getArgsAndCreateLine = (function () {
+            $.post("@Url.Action("GetCourse")").done(function (xml) {
+                if (xml === "") {
+                    alert("done");
+                    clearInterval(refreshIntervalId);
+                }
+                var xmlDoc = $.parseXML(xml),
+                $xml = $(xmlDoc),
+                rudder = $xml.find("rudder").text();
+                throttle = $xml.find("throttle").text();
+                fRudder = parseFloat(rudder);
+                fThrottle = parseFloat(throttle);
+
+                var curX = newX;
+                var curY = newY;
+                var addToX = 1 - Math.abs(fRudder);
+                var addToY = -1 * fRudder;
+                newX = curX + (addToX * (time/10) * fThrottle);
+                newY = (curX + (addToY * (time / 10) * fThrottle));
+
+                newX = Math.max(0, newX);
+                newY = Math.max(0, newY);
+                newX = Math.min(myCanvas.width, newX);
+                newY = Math.min(myCanvas.height, newY);
+
+                createLine("myCanvas", curX, curY, newX, newY, 2, "red");
+            });
+        });
+</script>

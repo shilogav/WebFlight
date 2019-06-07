@@ -16,10 +16,14 @@ namespace WebApplication.Controllers
     {
         private double latitude;
         private double longitude;
+
         private OrderedDictionary elements = new OrderedDictionary()
         {
             { "lon","/position/longitude-deg" },
-            { "lat", "/position/latitude-deg" }
+            { "lat", "/position/latitude-deg" },
+            { "rudder", "/controls/flight/rudder" },
+            { "throttle", "/controls/engines/engine/throttle" }
+
         };
 
         // GET: Default
@@ -28,56 +32,171 @@ namespace WebApplication.Controllers
             return View();
         }
 
-        [HttpGet]
-        public ActionResult display(string ip, int port)
+
+        private string getValuesFromServer(string ip, int port, List<string> vars)
         {
-           IModel model = MyModel.Instance;
+            IModel model = MyModel.Instance;
             model.connectClient(ip, port);
-            List<string> vals = new List<string>();
-            string a = (string)elements["lon"];
-            string b = (string)elements["lat"];
-            vals.Add(a);
-            vals.Add(b);
-            ICollection<string> elemetsWithGet = addGetAndNewLineToStrings(vals);
+            ICollection<string> elemetsWithGet = addGetAndNewLineToStrings(vars);
 
             ITelnetClient c = model.getClient();
             string strings = c.read(elemetsWithGet);
             model.disconnectClient();
+            return strings;
+        }
+
+
+        [HttpGet]
+        public ActionResult display(string ip, int port)
+        {
+
+            List<string> vals = new List<string>();
+            vals.Add((string)elements["lon"]);
+            vals.Add((string)elements["lat"]);
+            string strings = getValuesFromServer(ip,port,vals);
+
             List<string> values = strings.Split(',').ToList();
-
             Longitude = Double.Parse(extractDouble(values[0]));
-            Latitude  = Double.Parse(extractDouble(values[1]));
-
+            Latitude = Double.Parse(extractDouble(values[1]));
             Session["lat"] = Latitude;
             Session["lon"] = Longitude;
 
-
             return View();
+        }
 
 
-            /*InfoModel.Instance.ip = ip;
-            InfoModel.Instance.port = port.ToString();
-            InfoModel.Instance.time = time;
+        string[] readFromFile(string path)
+        {
+            var dir = Server.MapPath("~\\files");
+            var file = Path.Combine(dir, path);
 
-            InfoModel.Instance.ReadData("Dor");
+            return System.IO.File.ReadAllLines(file);
+        }
 
-            Session["time"] = time;
+        public volatile static string[] lines;
+        public volatile static int lineIndex;
+        public static bool isMultiLine = false;
+
+        private ActionResult setArgsAndDisplay(double lon, double lat, int tempo)
+        {
+            Session["time"] = tempo;
+            Session["lat"] = lat;
+            Session["lon"] = lon;
+
+            return View("loadAndDisplay");
+        }
 
 
-            return View();*/
+        [HttpGet]
+        public ActionResult loadAndDisplay(string path, int tempo)
+        {
+            var dir = Server.MapPath("~\\files");
+            string file = Path.Combine(dir, path);
+            lines = readFromFile(file);
+
+            if (lines.Length >= lineIndex)
+            {
+                lineIndex = 0;
+            }
+            string line = lines[lineIndex];
+
+            List<string> values = line.Split(',').ToList();
+            double lon;
+            double lat;
+            if (values.Count >= 2)
+            {
+                lon = Double.Parse(values[0]);
+                lat = Double.Parse(values[1]);
+            }
+            else
+            {
+                lon = 0;
+                lat = 0;
+            }
+            isMultiLine = true;
+            return setArgsAndDisplay(lon, lat, tempo);
+
+        }
+
+        [HttpPost]
+        public string GetCourse()
+        {
+            if ((isMultiLine && lineIndex >= lines.GetLength(0))
+                || lineIndex < 0)
+            {
+                lineIndex = 0;
+                return "";
+            }
+
+            string line;
+            if (isMultiLine)
+            {
+                line = lines[lineIndex];
+            } else
+            {
+                line = lines[0];
+            }
+            List<string> values = line.Split(',').ToList();
+
+
+            string rudder = values[2];
+            string throttle = values[3];
+
+            lineIndex++;
+            return ToXml(Double.Parse(rudder), Double.Parse(throttle));
+        }
+
+
+        private string getValuesInBackgroundWithTime(string ip, int port, int tempo, List<string> args)
+        {
+            lines = new string[5];
+            string strings = getValuesFromServer(ip, port, args);
+            string line = getValuesAsString(strings);
+            lines[0] = line;
+            Task taskA = new Task(() => {
+                while (true)
+                {
+                    strings = getValuesFromServer(ip, port, args);
+                    lines[0] = getValuesAsString(strings);
+                    lineIndex = 0;
+                    System.Threading.Thread.Sleep(tempo * 1000);
+                }
+            });
+            // Start the task.
+            taskA.Start();
+            return line;
+        }
+
+
+        [HttpGet]
+        public ActionResult getArgsAndDisplay(string ip, int port, int tempo)
+
+        {
+            List<string> args = new List<string>();
+            foreach (var e in elements.Values)
+            {
+                args.Add((string)e);
+            }
+            string line = getValuesInBackgroundWithTime(ip, port, tempo, args);
+            List<string> values = line.Split(',').ToList();
+
+            isMultiLine = false;
+            return setArgsAndDisplay(Double.Parse(values[0]),
+                                Double.Parse(values[1]), tempo);
+            
         }
 
         
 
-        private void toXml(XmlWriter writer)
+        private void toXml(XmlWriter writer, double rudder, double throttle)
         {
             writer.WriteStartElement("Location");
-            writer.WriteElementString("Latitude", this.Latitude.ToString());
-            writer.WriteElementString("Longitude", this.Longitude.ToString());
+            writer.WriteElementString("rudder", rudder.ToString());
+            writer.WriteElementString("throttle", throttle.ToString());
             writer.WriteEndElement();
         }
 
-        private string ToXml(double lon, double lat)
+        private string ToXml(double rudder, double throttle)
         {
             //Initiate XML stuff
             StringBuilder sb = new StringBuilder();
@@ -87,7 +206,7 @@ namespace WebApplication.Controllers
             writer.WriteStartDocument();
             writer.WriteStartElement("Location");
 
-            toXml(writer);
+            toXml(writer, rudder , throttle);
 
             writer.WriteEndElement();
             writer.WriteEndDocument();
@@ -161,45 +280,62 @@ namespace WebApplication.Controllers
             return copyString;
         }
 
+        private string getValuesAsString(string strings)
+        {
+            List<string> values = strings.Split(',').ToList();
+            string properties = extractDouble(values[0]);
+
+            int length = elements.Values.Count;
+            for (int i = 1; i < length; ++i)
+            {
+                properties += "," + extractDouble(values[i]);
+            }
+            return properties;
+        }
+
 
         [HttpGet]
-        public string save(string ip, int port, int tempo, int duration, string fileName)
+        public ActionResult save(string ip, int port, int tempo, int duration, string fileName)
         {
-            string msg = fileName + " added";
+            ActionResult action = getArgsAndDisplay(ip, port, tempo);
+
             ICollection<string> elemetsWithGet = addGetAndNewLineToStrings(elements.Values);
             IModel model = MyModel.Instance;
-            model.connectClient(ip, port);
+            ITelnetClient c = model.getClient();
+            lines = new string[2];
 
-            try
-            {
-                ITelnetClient c = model.getClient();
-
-                bool Completed = ExecuteWithTimeLimit(TimeSpan.FromSeconds(duration), () =>
+            Task taskA = new Task(() => {
+            //string str = "start";
+                try
                 {
-                    do
+                    
+                    bool running = ExecuteWithTimeLimit(TimeSpan.FromSeconds(duration), () =>
                     {
-                        string strings = c.read(elemetsWithGet);
-                        List<string> values = strings.Split(',').ToList();
-                        string properties = extractDouble(values[0]);
-
-                        int length = elements.Values.Count;
-                        for (int i = 1; i < length; ++i)
+                        do
                         {
-                            properties += "," + extractDouble(values[i]);
-                        }
+                            model.connectClient(ip, port);
+                            string strings = c.read(elemetsWithGet);
+                            model.disconnectClient();
+                            string properties =  getValuesAsString(strings);
+                            lines[0] = properties;
+                            writeToFile(fileName, properties);
+                            System.Threading.Thread.Sleep(1000 * tempo);
+                        } while (true);
+                        
+                    });
+                    lineIndex = -1;
+                   //     str = "success";
+                }
+                catch{
+                //str = "fail";
+                } 
+                
+            });
+            // Start the task.
+            taskA.Start();
 
-                        writeToFile(fileName, properties);
-                        System.Threading.Thread.Sleep(1000 * tempo);
-                    } while (c.isConnected());
-                });
-            }
-            catch
-            {
-                msg = "there was a problem";
-            }
-
-            model.disconnectClient();
-            return msg;
+            isMultiLine = false;
+            return action;
         }
 
 
